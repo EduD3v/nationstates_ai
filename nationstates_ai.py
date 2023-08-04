@@ -4,6 +4,8 @@ import time
 import aiohttp
 import asyncio
 import aiosqlite
+import requests
+from bs4 import BeautifulSoup
 
 logging.basicConfig(
     filename="logs.log",
@@ -13,14 +15,12 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-
 class Option:
     __slots__ = "id", "text"
 
     def __init__(self, option_id: int, text: str):
         self.id = option_id
         self.text = text
-
 
 class Issue:
     __slots__ = "id", "title", "text", "options"
@@ -30,7 +30,6 @@ class Issue:
         self.title = title
         self.text = text
         self.options = options
-
 
 async def manage_ratelimit(response: aiohttp.ClientResponse):
     if int(response.headers["RateLimit-Remaining"]) < 10:
@@ -42,7 +41,6 @@ async def manage_ratelimit(response: aiohttp.ClientResponse):
             f"Resumed server after sleeping for {sleep_time} seconds to avoid rate-limits."
         )
         print(f"Resumed server after sleeping for {sleep_time} seconds to avoid rate-limits.")
-
 
 async def parse_issue(issue_text):
     issue_text = ElementTree.fromstring(issue_text)
@@ -72,15 +70,12 @@ async def parse_issue(issue_text):
             pass
     return issue_list
 
-
 async def huggingface_query(payload, url, session: aiohttp.ClientSession):
     while True:
-        """response = json.loads(
-        requests.request("POST", url, headers=headers, json=payload).content.decode("utf-8"))
-        """
         session = aiohttp.ClientSession(headers=session.headers)
         async with session:
             async with session.post(url, json=payload) as response:
+                print("Payload sent to model:", payload) 
                 response = await response.json()
                 try:
                     testing_dict = response["answer"]
@@ -92,7 +87,6 @@ async def huggingface_query(payload, url, session: aiohttp.ClientSession):
                     logging.error("AI is offline, retrying in 30 seconds...")
                     await asyncio.sleep(30)
 
-
 async def get_issues(nation, ns_session):
     url = f"https://www.nationstates.net/cgi-bin/api.cgi"
     params = {"nation": nation, "q": "issues"}
@@ -100,21 +94,27 @@ async def get_issues(nation, ns_session):
     async with ns_session:
         async with ns_session.get(url, params=params) as response:
             await manage_ratelimit(response)
-            """logging.info(f"Received cookies: {len(response.cookies)}")
-            logging.info(response.headers)"""
             ns_session.headers.add("X-pin", response.headers["X-pin"])
             response = await response.text()
-    with open("issues.txt", "a") as myfile:
+    with open("issues.txt", "a", encoding="utf-8") as myfile:
         myfile.write(response)
     logging.info(response)
     issue_list = await parse_issue(response)
     for issue in issue_list:
         logging.info(format_issue(issue))
         print(f"Issue id {issue.id}: {format_issue(issue)}")
-        with open("issues.txt", "a") as myfile:
+        with open("issues.txt", "a", encoding="utf-8") as myfile:
             myfile.write(format_issue(issue))
     return [issue_list, ns_session]
 
+def get_issue_results(issue_id):
+    url = f"http://www.mwq.dds.nl/ns/results/{issue_id}.html"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table")
+    if table:
+        return table.get_text()
+    return ""
 
 def format_issue(ns_issue: Issue):
     formatted_issue = f"""{ns_issue.title}
@@ -130,7 +130,6 @@ The Debate"""
         index += 1
     return formatted_issue
 
-
 def format_question(ns_issue: Issue, prompt: str):
     number_string = ""
     for number in range(1, len(ns_issue.options)):
@@ -141,7 +140,6 @@ def format_question(ns_issue: Issue, prompt: str):
         f"be accepted."
     )
     return question
-
 
 async def execute_issues(
     nation: str,
@@ -161,6 +159,7 @@ async def execute_issues(
                 "inputs": {
                     "question": format_question(issue, prompt),
                     "context": format_issue(issue),
+                    "issue_results": get_issue_results(issue.id),
                 },
                 "wait_for_model": True
             },
@@ -212,10 +211,9 @@ async def execute_issues(
             await manage_ratelimit(issue_response)
             issue_response = await issue_response.text()
         execute.append(issue_response)
-        with open("issue_results.txt", "a") as myfile:
+        with open("issue_results.txt", "a", encoding="utf-8") as myfile:
             myfile.write(issue_response)
     return [execute, aiohttp.ClientSession(headers=ns_session.headers)]
-
 
 async def time_to_next_issue(nation: str, ns_session: aiohttp.ClientSession):
     url = "https://www.nationstates.net/cgi-bin/api.cgi"
@@ -240,7 +238,6 @@ async def time_to_next_issue(nation: str, ns_session: aiohttp.ClientSession):
     await con.close()
     return next_issue_time
 
-
 async def startup_ratelimit(nation, wait_time):
     print(
         f"""Nation {nation} prepared. 
@@ -252,12 +249,11 @@ async def startup_ratelimit(nation, wait_time):
     )
     await asyncio.sleep(wait_time)
     print(
-        f"""Nation {nation} has woke up and will start automatically answering issues!"""
+        f"""Nation {nation} has woken up and will start automatically answering issues!"""
     )
     logging.info(
-        f"""Nation {nation} has woke up and will start automatically answering issues!"""
+        f"""Nation {nation} has woken up and will start automatically answering issues!"""
     )
-
 
 async def ns_ai_bot(
     nation, password, headers, hf_url, prompt, user_agent, wait_time: int
