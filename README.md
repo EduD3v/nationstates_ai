@@ -36,3 +36,14 @@ Sent query: "First, consider the options carefully. Now, avoid mentioning specif
 7. Run the bot. 
 
 The logs are outputted to logs.log.
+
+## Screenshoots
+**Use Data**
+<img src="https://i.imgur.com/iWoLOY3.png">
+
+**Console**
+<img src="https://i.imgur.com/D81XMJy.png">
+
+**Results**
+<img src="https://i.imgur.com/MA4WB1l.png">
+*Tested in the nation of "Rusia"*
