@@ -1,2 +1,5 @@
 aiohttp
 aiosqlite
+python-dotenv
+bs4
+requests
