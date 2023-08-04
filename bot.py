@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from nationstates_ai import ns_ai_bot
 import asyncio
 import logging
@@ -41,6 +45,13 @@ except KeyError:
     print("Input the prompts for your nations into your .env file under the name of PROMPTS. "
           "See an example .env file at https://github.com/Bohaska/nationstates_ai/blob/main/.env.")
     sys.exit(0)
+
+print("USER_AGENT:", USER_AGENT)
+print("API_URL:", API_URL)
+print("NATIONS:", NATIONS)
+print("NATIONSTATES_PASSWORDS:", NATIONSTATES_PASSWORDS)
+print("PROMPTS:", PROMPTS)
+
 
 
 async def run_all_ais(
