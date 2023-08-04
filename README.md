@@ -47,3 +47,9 @@ The logs are outputted to logs.log.
 **Results**
 <img src="https://i.imgur.com/MA4WB1l.png">
 *Tested in the nation of "Rusia"*
+
+
+## Credits
+Special thanks to:
+- Main Code: @Bohaska (https://github.com/Bohaska)
+- Accurate Info mwq.dds.nl: Milo (https://www.nationstates.net/nation=trotterdam)
