@@ -1,10 +1,11 @@
 # nationstates-ai
-Bridge that answers nationstates issues using an AI
+
+Bridge that solves NationStates issues using an AI with slightly more precise results with the help of http://www.mwq.dds.nl/ns/results/ 
 
 How to set up:
 1. Create an account on Huggingface (https://huggingface.co)
 2. Generate a read-access token (https://huggingface.co/settings/tokens)
-3. Find a host for this bot. I use Daki (https://daki.cc)
+3. Find a host for this bot. I use Discloud (https://discloudbot.com/)
 4. Create a server. The absolute minimum necessary is 10% CPU, 100mb RAM and 200mb disk storage. Adding more CPU will make your server start up faster but does little else. **Remember to set the programming language as Python!**
 5. Copy the repository and file names. 
 6. Edit environment variables in .env
@@ -24,11 +25,13 @@ Very Good AI Nation -> "very_good_ai_nation"
 - NATIONSTATES_PASSWORDS: Input your Nationstates passwords, one for each nation you want to use the AI to control.
 - PROMPTS: Input the prompt you want to give to the AI at the beginning of each issue query. 
 
-The prompts will be sent to the AI in this format: "{prompt} 1, 2, 3 or 4?"
+The prompts will be sent to the AI in this format: "{prompt} 1, 2, 3 or 4?" 
 
-Example: prompt = "Who would Donald Trump agree with,"
+**Please, be as precise as possible, and make sure that the following sentence is at the beginning of the prompt: *"First, consider the options carefully. Now, avoid mentioning specific option numbers; its not necessary."* This is to avoid problems with the code that mention figures.**
 
-Sent query: "Who would Donald Trump agree with, 1, 2, 3, or 4?"
+Example: prompt = "First, consider the options carefully. Now, avoid mentioning specific option numbers; its not necessary. Who would Donald Trump agree with,"
+
+Sent query: "First, consider the options carefully. Now, avoid mentioning specific option numbers; its not necessary. Who would Donald Trump agree with, 1, 2, 3, or 4?"
 
 7. Run the bot. 
 
