@@ -1,4 +1,4 @@
-# nationstates-ai
+# nationstates-ai + mwq.dds.nl
 
 Bridge that solves NationStates issues using an AI with slightly more precise results with the help of http://www.mwq.dds.nl/ns/results/ 
 
